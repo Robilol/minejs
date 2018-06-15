@@ -7,9 +7,10 @@ import 'three/examples/js/controls/PointerLockControls';
 import {TweenLite as TweenLine} from "gsap/TweenLite";
 import '../js/water-material.js';
 
-let camera, scene, renderer, hand, pointer, water, material, loader, texture;
+let camera, scene, renderer, hand, pointer, water, material, loader, texture, blocs, player;
 var controls;
 var raycaster = new THREE.Raycaster();
+var pointCaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
 
 function onMouseMove(e){
@@ -31,9 +32,17 @@ document.onkeyup = function (e) {
 
 function init() {
     scene = new THREE.Scene();
+    blocs = new THREE.Group();
 
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight);
+
+
     camera.position.z = 0;
+
+
+    player = new THREE.Object3D();
+    player.add(camera);
+    scene.add( player );
 
     loader = new THREE.ImageLoader();
 
@@ -49,9 +58,13 @@ function init() {
             mesh.position.z -= y * 2;
             mesh.position.y = 0;
 
-            scene.add(mesh);
+            blocs.add(mesh);
         }
     }
+
+
+    scene.add(blocs);
+
     var handGeo = new THREE.BoxGeometry(1, 1, 1);
     var handMaterial = new THREE.MeshBasicMaterial({
         color: 0xff0000,
@@ -77,24 +90,34 @@ function init() {
     pointer.translateZ(-0.1);
     camera.add(pointer);
 
+    var directionalLight = new THREE.DirectionalLight(0xffff55, 1);
+    directionalLight.position.set(-600, 300, 600);
+    scene.add(directionalLight);
 
-    var waterNormals = new THREE.ImageUtils.loadTexture( '../images/water.png' );
+
+    var waterNormals = new THREE.TextureLoader().load('../images/water.png' );
     waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping;
 
      water = new THREE.Water( renderer, camera, scene, {
-        waterNormals: waterNormals,
-        waterColor: 0x1F4F4F,
+         textureWidth: 512,
+         textureHeight: 512,
+         waterNormals: waterNormals,
+         alpha: 	1.0,
+         sunDirection: directionalLight.position.normalize(),
+         sunColor: 0xffffff,
+         waterColor: 0x001e0f,
+         distortionScale: 50.0
     } );
 
-    var mirrorMesh = new THREE.Mesh(
-        new THREE.PlaneBufferGeometry(100000, 100000 ),
+    var aMeshMirror = new THREE.Mesh(
+        new THREE.PlaneBufferGeometry(100000, 100000, 10, 10),
         water.material
     );
+    aMeshMirror.add(water);
+    aMeshMirror.rotation.x = - Math.PI * 0.5;
+    scene.add(aMeshMirror);
 
-    mirrorMesh.add( water );
-    mirrorMesh.rotation.x = - Math.PI * 0.5;
-    mirrorMesh.position.y = 0;
-    scene.add( mirrorMesh );
+
 
     var cubeMap = new THREE.CubeTexture( [] );
     cubeMap.format = THREE.RGBFormat;
@@ -161,38 +184,6 @@ function init() {
     scene.add(mesh);
 
 
-    var sun = new THREE.SphereGeometry(1, 32, 32, 0, 7, 0, 7);
-    material = new THREE.MeshBasicMaterial({
-        color: 0xff0000,
-    });
-    mesh = new THREE.Mesh(sun, material);
-    mesh.position.set( -1, 1, 1 );
-
-    scene.add(mesh);
-
-
-    var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-    dirLight.position.set( -1, 1, 1 );
-    dirLight.position.multiplyScalar( 50);
-    dirLight.name = "dirlight";
-
-    scene.add( dirLight );
-
-    dirLight.castShadow = true;
-    dirLight.shadowMapWidth = dirLight.shadowMapHeight = 1024*2;
-
-    var d = 300;
-
-    dirLight.shadowCameraLeft = -d;
-    dirLight.shadowCameraRight = d;
-    dirLight.shadowCameraTop = d;
-    dirLight.shadowCameraBottom = -d;
-
-    dirLight.shadowCameraFar = 3500;
-    dirLight.shadowBias = -0.0001;
-    dirLight.shadowDarkness = 0.35;
-
-
 
 
     var data = { x: 0};
@@ -239,6 +230,8 @@ function init() {
         element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
         element.requestPointerLock();
     }, false);
+
+    window.addEventListener("click", onClick);
 }
 
 const clock = new THREE.Clock();
@@ -270,8 +263,6 @@ function animate() {
         controls.getObject().translateY(-delta * speed);
     }
 
-    raycaster.setFromCamera(new THREE.Vector2(), camera);
-    var intersects = raycaster.intersectObjects(scene.children);
 
     water.material.uniforms.time.value += 1.0 / 40.0;
 
@@ -285,6 +276,98 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }, false);
+
+function onClick ( e ) {
+
+    pointCaster.setFromCamera(new THREE.Vector2(), camera);
+    var intersects = pointCaster.intersectObjects(blocs.children);
+
+
+    if (intersects.length > 0 ) {
+        if (e.which == 1) {
+            blocs.remove(intersects[0].object);
+        }
+
+
+        if (e.which == 3) {
+            var pos = intersects[0].object.position;
+
+
+            texture = new THREE.TextureLoader().load( '../images/atlas.png' );
+            material = new THREE.MeshStandardMaterial( { map: texture } );
+
+            var geometry = new THREE.BoxGeometry(2, 2, 2);
+            var mesh = new THREE.Mesh(geometry, material);
+
+
+            switch (intersects[0].faceIndex) {
+                case 0:
+                    mesh.position.x = pos.x + 2;
+                    mesh.position.z = pos.z;
+                    mesh.position.y = pos.y;
+                    break;
+                case 1:
+                    mesh.position.x = pos.x + 2;
+                    mesh.position.z = pos.z;
+                    mesh.position.y = pos.y;
+                    break;
+                case 2:
+                    mesh.position.x = pos.x - 2;
+                    mesh.position.z = pos.z;
+                    mesh.position.y = pos.y;
+                    break;
+                case 3:
+                    mesh.position.x = pos.x - 2;
+                    mesh.position.z = pos.z;
+                    mesh.position.y = pos.y;
+                    break;
+                case 4:
+                    mesh.position.x = pos.x;
+                    mesh.position.z = pos.z;
+                    mesh.position.y = pos.y + 2;
+                    break;
+                case 5:
+                    mesh.position.x = pos.x;
+                    mesh.position.z = pos.z;
+                    mesh.position.y = pos.y + 2;
+                    break;
+                case 6:
+                    mesh.position.x = pos.x;
+                    mesh.position.z = pos.z;
+                    mesh.position.y = pos.y - 2;
+                    break;
+                case 7:
+                    mesh.position.x = pos.x;
+                    mesh.position.z = pos.z;
+                    mesh.position.y = pos.y - 2;
+                    break;
+                case 8:
+                    mesh.position.x = pos.x;
+                    mesh.position.z = pos.z + 2;
+                    mesh.position.y = pos.y;
+                    break;
+                case 9:
+                    mesh.position.x = pos.x;
+                    mesh.position.z = pos.z + 2;
+                    mesh.position.y = pos.y;
+                    break;
+                case 10:
+                    mesh.position.x = pos.x;
+                    mesh.position.z = pos.z - 2;
+                    mesh.position.y = pos.y;
+                    break;
+                case 11:
+                    mesh.position.x = pos.x;
+                    mesh.position.z = pos.z - 2;
+                    mesh.position.y = pos.y;
+                    break;
+            }
+
+            blocs.add(mesh);
+
+        }
+    }
+}
 
 
 init();
