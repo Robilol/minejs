@@ -7,11 +7,53 @@ import 'three/examples/js/controls/PointerLockControls';
 import {TweenLite as TweenLine} from "gsap/TweenLite";
 import '../js/water-material.js';
 
-let camera, scene, renderer, hand, pointer, water, material, loader, texture, blocs, player;
+let camera, scene, renderer, hand, pointer, water, material, loader, texture, blocs, player, redSquarre;
 var controls;
 var raycaster = new THREE.Raycaster();
 var pointCaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
+var actionBarNumber = 1;
+
+var grassMaterials = [
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/grass-dirt.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/grass-dirt.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/grass.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/dirt.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/grass-dirt.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/grass-dirt.png')
+    })
+];
+var dirtMaterials = [
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/dirt.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/dirt.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/dirt.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/dirt.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/dirt.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/dirt.png')
+    })
+];
 
 function onMouseMove(e){
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -35,10 +77,7 @@ function init() {
     blocs = new THREE.Group();
 
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight);
-
-
     camera.position.z = 0;
-
 
     player = new THREE.Object3D();
     player.add(camera);
@@ -46,13 +85,13 @@ function init() {
 
     loader = new THREE.ImageLoader();
 
-    texture = new THREE.TextureLoader().load( '../images/atlas.png' );
-    material = new THREE.MeshStandardMaterial( { map: texture } );
+
 
     //cubes floor
     for (var x = 0; x < 30; x++){
         for(var y = 0; y < 30; y++){
-            var geometry = new THREE.BoxGeometry(2, 2, 2);
+            var geometry = new THREE.CubeGeometry(2, 2, 2);
+            material = new THREE.MeshFaceMaterial(grassMaterials);
             var mesh = new THREE.Mesh(geometry, material);
             mesh.position.x -= x * 2;
             mesh.position.z -= y * 2;
@@ -61,34 +100,116 @@ function init() {
             blocs.add(mesh);
         }
     }
-
-
     scene.add(blocs);
 
-    var handGeo = new THREE.BoxGeometry(1, 1, 1);
+    // main du personnage
+    var handGeo = new THREE.BoxGeometry(1, 2, 1);
     var handMaterial = new THREE.MeshBasicMaterial({
-        color: 0xff0000,
+        color: 0x0000ff,
     });
     hand = new THREE.Mesh(handGeo, handMaterial);
     hand.position.copy( camera.position );
     hand.rotation.copy( camera.rotation );
-    hand.updateMatrix();
     hand.translateZ( - 5 );
     hand.translateY( - 2.5 );
     hand.translateX( 1.5 );
-    camera.add(hand);
 
-
-    var pointerGeo = new THREE.CircleGeometry(0.0004, 128, 0, 6.3);
+    // pointer
+    var pointerGeo = new THREE.CircleGeometry(0.004, 128, 0, 6.3);
     var pointerMaterial = new THREE.MeshBasicMaterial({
         color: 0xff0000,
     });
     pointer = new THREE.Mesh(pointerGeo, pointerMaterial);
     pointer.position.copy( camera.position );
     pointer.rotation.copy( camera.rotation );
+    pointer.translateZ( - 1 );
+
+
+    // carré rouge barre d'action
+    var redSquareGeo = new THREE.BoxGeometry(0.1, 0.1, 0.000001);
+    var redSquarreMaterial = new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        wireframe: true
+    });
+    redSquarre = new THREE.Mesh(redSquareGeo, redSquarreMaterial);
+    redSquarre.position.copy( camera.position );
+    redSquarre.rotation.copy( camera.rotation );
+    redSquarre.translateZ( - 0.999999 );
+    redSquarre.translateY( - 0.55 );
+    redSquarre.translateX( - 0.45 );
+    redSquarre.updateMatrix();
+    camera.add( redSquarre );
+
+    // ligne supérieur de la barre d'action
+    var suppLineMaterial = new THREE.LineBasicMaterial( { color: 0xffffff } );
+    var suppLineGeometry = new THREE.Geometry();
+    suppLineGeometry.vertices.push(new THREE.Vector3( -0.5, 0, 0) );
+    suppLineGeometry.vertices.push(new THREE.Vector3( 0.5, 0, 0) );
+    var suppline = new THREE.Line( suppLineGeometry, suppLineMaterial );
+    suppline.position.copy( camera.position );
+    suppline.rotation.copy( camera.rotation );
+    suppline.translateZ(- 1);
+    suppline.translateY(- 0.5);
+
+    // lignes verticales de la barre d'action
+    for (var x= -0.5; x < 0.6; x = x + 0.1)
+    {
+        var linesMaterial = new THREE.LineBasicMaterial( { color: 0xffffff } );
+        var linesGeometry = new THREE.Geometry();
+        linesGeometry.vertices.push(new THREE.Vector3( 0, -0.6, 0) );
+        linesGeometry.vertices.push(new THREE.Vector3( 0, -0.5, 0) );
+        var lines = new THREE.Line( linesGeometry, linesMaterial );
+        lines.position.copy( camera.position );
+        lines.rotation.copy( camera.rotation );
+        lines.translateZ(- 1);
+        lines.translateX(- x);
+
+        lines.updateMatrix();
+        camera.add( lines );
+    }
+
+    // image grass-dirt action bar
+    var loaderGrassDirt = new THREE.TextureLoader();
+    var grassDirtMaterial = new THREE.MeshBasicMaterial({
+        map: loaderGrassDirt.load('../images/grass-dirt.png')
+    });
+    var grassDirtGeo = new THREE.PlaneGeometry(0.099, 0.099);
+    var grassDirt = new THREE.Mesh(grassDirtGeo, grassDirtMaterial);
+    grassDirt.position.copy( camera.position );
+    grassDirt.rotation.copy( camera.rotation );
+    grassDirt.translateZ(- 1);
+    grassDirt.translateY(- 0.55);
+    grassDirt.translateX(-0.45);
+    grassDirt.updateMatrix();
+    camera.add(grassDirt);
+
+    // image dirt action bar
+    var loaderDirt = new THREE.TextureLoader();
+    var dirtMaterial = new THREE.MeshBasicMaterial({
+        map: loaderDirt.load('../images/dirt.png')
+    });
+    var dirtGeo = new THREE.PlaneGeometry(0.099, 0.099);
+    var dirt = new THREE.Mesh(dirtGeo, dirtMaterial);
+    dirt.position.copy( camera.position );
+    dirt.rotation.copy( camera.rotation );
+    dirt.translateZ(- 1);
+    dirt.translateY(- 0.55);
+    dirt.translateX(-0.35);
+    dirt.updateMatrix();
+    camera.add(dirt);
+
+
+    // display des éléments collé à la caméra
     pointer.updateMatrix();
-    pointer.translateZ(-0.1);
+    hand.updateMatrix();
+    suppline.updateMatrix();
+    camera.add(hand);
     camera.add(pointer);
+    camera.add( suppline );
+
+
+
+
 
     var directionalLight = new THREE.DirectionalLight(0xffff55, 1);
     directionalLight.position.set(-600, 300, 600);
@@ -125,18 +246,13 @@ function init() {
     loader.load( '../images/skybox.png', function ( image ) {
 
         var getSide = function ( x, y ) {
-
             var size = 1024;
-
             var canvas = document.createElement( 'canvas' );
             canvas.width = size;
             canvas.height = size;
-
             var context = canvas.getContext( '2d' );
             context.drawImage( image, - x * size, - y * size );
-
             return canvas;
-
         };
 
         cubeMap.images[ 0 ] = getSide( 2, 1 ); // px
@@ -262,7 +378,78 @@ function animate() {
     if (keys[17]) {
         controls.getObject().translateY(-delta * speed);
     }
-
+    if (keys[49]){
+        redSquarre.position.copy( camera.position );
+        redSquarre.rotation.copy( camera.rotation );
+        redSquarre.translateZ( - 0.999999 );
+        redSquarre.translateY( - 0.55 );
+        redSquarre.translateX( - 0.45 );
+        actionBarNumber = 1;
+    }
+    if (keys[50]){
+        redSquarre.position.copy( camera.position );
+        redSquarre.rotation.copy( camera.rotation );
+        redSquarre.translateZ( - 0.999999 );
+        redSquarre.translateY( - 0.55 );
+        redSquarre.translateX( - 0.35 );
+        actionBarNumber = 2;
+    }
+    if (keys[51]){
+        redSquarre.position.copy( camera.position );
+        redSquarre.rotation.copy( camera.rotation );
+        redSquarre.translateZ( - 0.999999 );
+        redSquarre.translateY( - 0.55 );
+        redSquarre.translateX( - 0.25 );
+        actionBarNumber = 3;
+    }
+    if (keys[52]){
+        redSquarre.position.copy( camera.position );
+        redSquarre.rotation.copy( camera.rotation );
+        redSquarre.translateZ( - 0.999999 );
+        redSquarre.translateY( - 0.55 );
+        redSquarre.translateX( - 0.15 );
+        actionBarNumber = 4;
+    }
+    if (keys[53]){
+        redSquarre.position.copy( camera.position );
+        redSquarre.rotation.copy( camera.rotation );
+        redSquarre.translateZ( - 0.999999 );
+        redSquarre.translateY( - 0.55 );
+        redSquarre.translateX( - 0.05 );
+        actionBarNumber = 5;
+    }
+    if (keys[54]){
+        redSquarre.position.copy( camera.position );
+        redSquarre.rotation.copy( camera.rotation );
+        redSquarre.translateZ( - 0.999999 );
+        redSquarre.translateY( - 0.55 );
+        redSquarre.translateX( 0.05 );
+        actionBarNumber = 6;
+    }
+    if (keys[55]){
+        redSquarre.position.copy( camera.position );
+        redSquarre.rotation.copy( camera.rotation );
+        redSquarre.translateZ( - 0.999999 );
+        redSquarre.translateY( - 0.55 );
+        redSquarre.translateX(  0.15 );
+        actionBarNumber = 7;
+    }
+    if (keys[56]){
+        redSquarre.position.copy( camera.position );
+        redSquarre.rotation.copy( camera.rotation );
+        redSquarre.translateZ( - 0.999999 );
+        redSquarre.translateY( - 0.55 );
+        redSquarre.translateX(  0.25 );
+        actionBarNumber = 8;
+    }
+    if (keys[57]){
+        redSquarre.position.copy( camera.position );
+        redSquarre.rotation.copy( camera.rotation );
+        redSquarre.translateZ( - 0.999999 );
+        redSquarre.translateY( - 0.55 );
+        redSquarre.translateX(  0.35 );
+        actionBarNumber = 9;
+    }
 
     water.material.uniforms.time.value += 1.0 / 40.0;
 
@@ -293,10 +480,12 @@ function onClick ( e ) {
             var pos = intersects[0].object.position;
 
 
-            texture = new THREE.TextureLoader().load( '../images/atlas.png' );
-            material = new THREE.MeshStandardMaterial( { map: texture } );
 
-            var geometry = new THREE.BoxGeometry(2, 2, 2);
+            var geometry = new THREE.CubeGeometry(2, 2, 2);
+            if (actionBarNumber === 1)
+                material = new THREE.MeshFaceMaterial(grassMaterials);
+            if (actionBarNumber === 2)
+                material = new THREE.MeshFaceMaterial(dirtMaterials);
             var mesh = new THREE.Mesh(geometry, material);
 
 
