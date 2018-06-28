@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="16a386d0-ea87-40f8-be78-b33eb3b16757" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/build/images/water.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/images/quarry.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/build/images/quarry.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/js/base.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/base.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/node_modules/" />
@@ -19,8 +19,8 @@
       <file leaf-file-name="base.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/js/base.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="645">
-              <caret line="265" column="27" selection-start-line="265" selection-start-column="27" selection-end-line="265" selection-end-column="27" />
+            <state relative-caret-position="298">
+              <caret line="618" column="88" selection-start-line="618" selection-start-column="88" selection-end-line="618" selection-end-column="88" />
             </state>
           </provider>
         </entry>
@@ -65,6 +65,7 @@
       <find>star</find>
       <find>loadTe</find>
       <find>load</find>
+      <find>0.2</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -225,12 +226,12 @@
       <workItem from="1529158560140" duration="9994000" />
       <workItem from="1529915689243" duration="1976000" />
       <workItem from="1529919529637" duration="18782000" />
-      <workItem from="1530167088377" duration="589000" />
+      <workItem from="1530167088377" duration="6061000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="66819000" />
+    <option name="totallyTimeSpent" value="72291000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="64" y="-11" width="1857" height="1092" extended-state="6" />
@@ -489,8 +490,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/js/base.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="645">
-          <caret line="265" column="27" selection-start-line="265" selection-start-column="27" selection-end-line="265" selection-end-column="27" />
+        <state relative-caret-position="298">
+          <caret line="618" column="88" selection-start-line="618" selection-start-column="88" selection-end-line="618" selection-end-column="88" />
         </state>
       </provider>
     </entry>

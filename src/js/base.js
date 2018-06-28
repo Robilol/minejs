@@ -77,6 +77,26 @@ var quarryMaterials = [
         map: THREE.ImageUtils.loadTexture('images/quarry.jpg')
     })
 ];
+var netherMaterials = [
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/nether.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/nether.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/nether.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/nether.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/nether.png')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/nether.png')
+    })
+];
 
 function onMouseMove(e){
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -112,12 +132,56 @@ function init() {
 
     //cubes floor
     for (var x = 0; x < 30; x++){
-        for(var y = 0; y < 30; y++){
+        for(var z = 0; z < 30; z++){
+            for (var y = 1; y < 10; y++)
+            {
+                var randPut = THREE.Math.randInt(0, 2);
+                if (randPutInit)
+                {
+                    randPut = 0;
+                    randPutInit = false;
+                }
+                if (randPut != 1)
+                    break;
+                if (randPut == 1) {
+                    if (y == 1) {
+                        var randMat = THREE.Math.randInt(1, 4);
+                        if (randMat == 1) {
+                            while (randPut == 1) {
+                                randPut = THREE.Math.randInt(0, 2);
+                                material = new THREE.MeshFaceMaterial(dirtMaterials);
+                                var geometry = new THREE.CubeGeometry(2, 2, 2);
+                                var mesh = new THREE.Mesh(geometry, material);
+                                mesh.position.x -= x * 2;
+                                mesh.position.z -= z * 2;
+                                mesh.position.y += y * 2;
+                                blocs.add(mesh);
+                                y++;
+                            }
+                            material = new THREE.MeshFaceMaterial(grassMaterials);
+                            var randPutInit = true;
+                        }
+                        if (randMat == 2)
+                            material = new THREE.MeshFaceMaterial(dirtMaterials);
+                        if (randMat == 3)
+                            material = new THREE.MeshFaceMaterial(quarryMaterials);
+                        if (randMat == 4)
+                            material = new THREE.MeshFaceMaterial(netherMaterials);
+                    }
+                    var geometry = new THREE.CubeGeometry(2, 2, 2);
+                    var mesh = new THREE.Mesh(geometry, material);
+                    mesh.position.x -= x * 2;
+                    mesh.position.z -= z * 2;
+                    mesh.position.y += y * 2;
+
+                    blocs.add(mesh);
+                }
+            }
             var geometry = new THREE.CubeGeometry(2, 2, 2);
             material = new THREE.MeshFaceMaterial(grassMaterials);
             var mesh = new THREE.Mesh(geometry, material);
             mesh.position.x -= x * 2;
-            mesh.position.z -= y * 2;
+            mesh.position.z -= z * 2;
             mesh.position.y = 0;
 
             blocs.add(mesh);
@@ -236,6 +300,21 @@ function init() {
     quarry.translateX(- 0.25);
     quarry.updateMatrix();
     camera.add(quarry);
+
+    // image netehr action bar
+    var loaderQuarry = new THREE.TextureLoader();
+    var netherMaterial = new THREE.MeshBasicMaterial({
+        map: loaderQuarry.load('../images/nether.png')
+    });
+    var netherGeo = new THREE.PlaneGeometry(0.099, 0.099);
+    var nether = new THREE.Mesh(netherGeo, netherMaterial);
+    nether.position.copy( camera.position );
+    nether.rotation.copy( camera.rotation );
+    nether.translateZ(- 1);
+    nether.translateY(- 0.53);
+    nether.translateX(- 0.15);
+    nether.updateMatrix();
+    camera.add(nether);
 
 
     // display des éléments collé à la caméra
@@ -537,7 +616,7 @@ function onClick ( e ) {
                 star.z = randomZ + intersects[0].object.position.z;
                 starsGeometry.vertices.push( star );
             }
-            var starsMaterial = new THREE.PointsMaterial( { map: textureBlock, size: 0.2 } );
+            var starsMaterial = new THREE.PointsMaterial( { map: textureBlock, size: 0.3 } );
             starField = new THREE.Points( starsGeometry, starsMaterial );
             scene.add( starField );
             beginTimer = clock.elapsedTime;
@@ -558,6 +637,8 @@ function onClick ( e ) {
                 material = new THREE.MeshFaceMaterial(dirtMaterials);
             if (actionBarNumber === 3)
                 material = new THREE.MeshFaceMaterial(quarryMaterials);
+            if (actionBarNumber === 4)
+                material = new THREE.MeshFaceMaterial(netherMaterials);
             var mesh = new THREE.Mesh(geometry, material);
 
 
