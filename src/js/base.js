@@ -7,12 +7,15 @@ import 'three/examples/js/controls/PointerLockControls';
 import {TweenLite as TweenLine} from "gsap/TweenLite";
 import '../js/water-material.js';
 
-let camera, scene, renderer, hand, pointer, water, material, loader, texture, blocs, player, redSquarre;
+let camera, scene, renderer, hand, pointer, water, material, loader, texture, blocs, player, redSquarre, starField, starsGeometry, beginTimer;
+let numberParticle = 10000;
 var controls;
 var raycaster = new THREE.Raycaster();
 var pointCaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
 var actionBarNumber = 1;
+var starFieldArray = [];
+var beginTimerArray = [];
 
 var grassMaterials = [
     new THREE.MeshLambertMaterial({
@@ -52,6 +55,26 @@ var dirtMaterials = [
     }),
     new THREE.MeshLambertMaterial({
         map: THREE.ImageUtils.loadTexture('images/dirt.png')
+    })
+];
+var quarryMaterials = [
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/quarry.jpg')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/quarry.jpg')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/quarry.jpg')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/quarry.jpg')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/quarry.jpg')
+    }),
+    new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('images/quarry.jpg')
     })
 ];
 
@@ -125,6 +148,7 @@ function init() {
     pointer.translateZ( - 1 );
 
 
+
     // carré rouge barre d'action
     var redSquareGeo = new THREE.BoxGeometry(0.1, 0.1, 0.000001);
     var redSquarreMaterial = new THREE.MeshBasicMaterial({
@@ -135,7 +159,7 @@ function init() {
     redSquarre.position.copy( camera.position );
     redSquarre.rotation.copy( camera.rotation );
     redSquarre.translateZ( - 0.999999 );
-    redSquarre.translateY( - 0.55 );
+    redSquarre.translateY( - 0.53 );
     redSquarre.translateX( - 0.45 );
     redSquarre.updateMatrix();
     camera.add( redSquarre );
@@ -149,7 +173,7 @@ function init() {
     suppline.position.copy( camera.position );
     suppline.rotation.copy( camera.rotation );
     suppline.translateZ(- 1);
-    suppline.translateY(- 0.5);
+    suppline.translateY(- 0.48);
 
     // lignes verticales de la barre d'action
     for (var x= -0.5; x < 0.6; x = x + 0.1)
@@ -157,7 +181,7 @@ function init() {
         var linesMaterial = new THREE.LineBasicMaterial( { color: 0xffffff } );
         var linesGeometry = new THREE.Geometry();
         linesGeometry.vertices.push(new THREE.Vector3( 0, -0.6, 0) );
-        linesGeometry.vertices.push(new THREE.Vector3( 0, -0.5, 0) );
+        linesGeometry.vertices.push(new THREE.Vector3( 0, -0.48, 0) );
         var lines = new THREE.Line( linesGeometry, linesMaterial );
         lines.position.copy( camera.position );
         lines.rotation.copy( camera.rotation );
@@ -178,7 +202,7 @@ function init() {
     grassDirt.position.copy( camera.position );
     grassDirt.rotation.copy( camera.rotation );
     grassDirt.translateZ(- 1);
-    grassDirt.translateY(- 0.55);
+    grassDirt.translateY(- 0.53);
     grassDirt.translateX(-0.45);
     grassDirt.updateMatrix();
     camera.add(grassDirt);
@@ -193,10 +217,25 @@ function init() {
     dirt.position.copy( camera.position );
     dirt.rotation.copy( camera.rotation );
     dirt.translateZ(- 1);
-    dirt.translateY(- 0.55);
+    dirt.translateY(- 0.53);
     dirt.translateX(-0.35);
     dirt.updateMatrix();
     camera.add(dirt);
+
+    // image quarry action bar
+    var loaderQuarry = new THREE.TextureLoader();
+    var quarryMaterial = new THREE.MeshBasicMaterial({
+        map: loaderQuarry.load('../images/quarry.jpg')
+    });
+    var quarryGeo = new THREE.PlaneGeometry(0.099, 0.099);
+    var quarry = new THREE.Mesh(quarryGeo, quarryMaterial);
+    quarry.position.copy( camera.position );
+    quarry.rotation.copy( camera.rotation );
+    quarry.translateZ(- 1);
+    quarry.translateY(- 0.53);
+    quarry.translateX(- 0.25);
+    quarry.updateMatrix();
+    camera.add(quarry);
 
 
     // display des éléments collé à la caméra
@@ -215,8 +254,7 @@ function init() {
     directionalLight.position.set(-600, 300, 600);
     scene.add(directionalLight);
 
-
-    var waterNormals = new THREE.TextureLoader().load('../images/water.png' );
+    var waterNormals = new THREE.TextureLoader().load('../images/water.jpg' );
     waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping;
 
      water = new THREE.Water( renderer, camera, scene, {
@@ -226,7 +264,7 @@ function init() {
          alpha: 	1.0,
          sunDirection: directionalLight.position.normalize(),
          sunColor: 0xffffff,
-         waterColor: 0x001e0f,
+         waterColor: 0xffffff,
          distortionScale: 50.0
     } );
 
@@ -336,7 +374,6 @@ function init() {
     };
     var pointerlockerror = function(event) {};
 
-
     // hook pointer lock state change events
     document.addEventListener('pointerlockchange', pointerlockchange, false);
     document.addEventListener('pointerlockerror', pointerlockerror, false);
@@ -359,7 +396,19 @@ function animate() {
     const delta = clock.getDelta();
     var speed = 10;
 
-    // left
+    if (starFieldArray)
+    {
+        var i = 0;
+        while (starFieldArray[i] != null) {
+            var endTimer = beginTimerArray[i] + 0.40;
+            starFieldArray[i].position.y -= 0.1;
+            if (clock.elapsedTime > endTimer) {
+                scene.remove(starFieldArray[i]);
+            }
+            i++;
+        }
+    }
+
     if (keys[37]) {
         controls.getObject().translateX(-delta * speed);
     }
@@ -382,7 +431,7 @@ function animate() {
         redSquarre.position.copy( camera.position );
         redSquarre.rotation.copy( camera.rotation );
         redSquarre.translateZ( - 0.999999 );
-        redSquarre.translateY( - 0.55 );
+        redSquarre.translateY( - 0.53 );
         redSquarre.translateX( - 0.45 );
         actionBarNumber = 1;
     }
@@ -390,7 +439,7 @@ function animate() {
         redSquarre.position.copy( camera.position );
         redSquarre.rotation.copy( camera.rotation );
         redSquarre.translateZ( - 0.999999 );
-        redSquarre.translateY( - 0.55 );
+        redSquarre.translateY( - 0.53 );
         redSquarre.translateX( - 0.35 );
         actionBarNumber = 2;
     }
@@ -398,7 +447,7 @@ function animate() {
         redSquarre.position.copy( camera.position );
         redSquarre.rotation.copy( camera.rotation );
         redSquarre.translateZ( - 0.999999 );
-        redSquarre.translateY( - 0.55 );
+        redSquarre.translateY( - 0.53 );
         redSquarre.translateX( - 0.25 );
         actionBarNumber = 3;
     }
@@ -406,7 +455,7 @@ function animate() {
         redSquarre.position.copy( camera.position );
         redSquarre.rotation.copy( camera.rotation );
         redSquarre.translateZ( - 0.999999 );
-        redSquarre.translateY( - 0.55 );
+        redSquarre.translateY( - 0.53 );
         redSquarre.translateX( - 0.15 );
         actionBarNumber = 4;
     }
@@ -414,7 +463,7 @@ function animate() {
         redSquarre.position.copy( camera.position );
         redSquarre.rotation.copy( camera.rotation );
         redSquarre.translateZ( - 0.999999 );
-        redSquarre.translateY( - 0.55 );
+        redSquarre.translateY( - 0.53 );
         redSquarre.translateX( - 0.05 );
         actionBarNumber = 5;
     }
@@ -422,7 +471,7 @@ function animate() {
         redSquarre.position.copy( camera.position );
         redSquarre.rotation.copy( camera.rotation );
         redSquarre.translateZ( - 0.999999 );
-        redSquarre.translateY( - 0.55 );
+        redSquarre.translateY( - 0.53 );
         redSquarre.translateX( 0.05 );
         actionBarNumber = 6;
     }
@@ -430,7 +479,7 @@ function animate() {
         redSquarre.position.copy( camera.position );
         redSquarre.rotation.copy( camera.rotation );
         redSquarre.translateZ( - 0.999999 );
-        redSquarre.translateY( - 0.55 );
+        redSquarre.translateY( - 0.53 );
         redSquarre.translateX(  0.15 );
         actionBarNumber = 7;
     }
@@ -438,7 +487,7 @@ function animate() {
         redSquarre.position.copy( camera.position );
         redSquarre.rotation.copy( camera.rotation );
         redSquarre.translateZ( - 0.999999 );
-        redSquarre.translateY( - 0.55 );
+        redSquarre.translateY( - 0.53 );
         redSquarre.translateX(  0.25 );
         actionBarNumber = 8;
     }
@@ -446,7 +495,7 @@ function animate() {
         redSquarre.position.copy( camera.position );
         redSquarre.rotation.copy( camera.rotation );
         redSquarre.translateZ( - 0.999999 );
-        redSquarre.translateY( - 0.55 );
+        redSquarre.translateY( - 0.53 );
         redSquarre.translateX(  0.35 );
         actionBarNumber = 9;
     }
@@ -472,7 +521,28 @@ function onClick ( e ) {
 
     if (intersects.length > 0 ) {
         if (e.which == 1) {
+            var textureBlock = intersects[0].object.material[3].map;
             blocs.remove(intersects[0].object);
+
+            starsGeometry = new THREE.Geometry();
+            for (var i = 0; i < 10; i ++ ) {
+
+                var star = new THREE.Vector3();
+
+                var randomX = THREE.Math.randFloatSpread( 1 );
+                var randomY = THREE.Math.randFloatSpread( 2 );
+                var randomZ = THREE.Math.randFloatSpread( 2 );
+                star.y = randomY + intersects[0].object.position.y;
+                star.x = randomX + intersects[0].object.position.x;
+                star.z = randomZ + intersects[0].object.position.z;
+                starsGeometry.vertices.push( star );
+            }
+            var starsMaterial = new THREE.PointsMaterial( { map: textureBlock, size: 0.2 } );
+            starField = new THREE.Points( starsGeometry, starsMaterial );
+            scene.add( starField );
+            beginTimer = clock.elapsedTime;
+            starFieldArray.push(starField);
+            beginTimerArray.push(beginTimer);
         }
 
 
@@ -486,6 +556,8 @@ function onClick ( e ) {
                 material = new THREE.MeshFaceMaterial(grassMaterials);
             if (actionBarNumber === 2)
                 material = new THREE.MeshFaceMaterial(dirtMaterials);
+            if (actionBarNumber === 3)
+                material = new THREE.MeshFaceMaterial(quarryMaterials);
             var mesh = new THREE.Mesh(geometry, material);
 
 
