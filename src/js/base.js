@@ -7,8 +7,7 @@ import 'three/examples/js/controls/PointerLockControls';
 import {TweenLite as TweenLine} from "gsap/TweenLite";
 import '../js/water-material.js';
 
-let camera, scene, renderer, hand, pointer, water, material, loader, texture, blocs, player, redSquarre, starField, starsGeometry, beginTimer;
-let numberParticle = 10000;
+let camera, scene, renderer, hand, pointer, water, material, loader, texture, blocs, player, redSquarre, starField, starsGeometry, beginTimer, inHand, inHandMaterial;
 var controls;
 var raycaster = new THREE.Raycaster();
 var pointCaster = new THREE.Raycaster();
@@ -200,6 +199,11 @@ function init() {
     hand.translateZ( - 5 );
     hand.translateY( - 2.5 );
     hand.translateX( 1.5 );
+    hand.updateMatrix();
+    camera.add(hand);
+
+    // inhand
+    inHandMaterial = grassMaterials;
 
     // pointer
     var pointerGeo = new THREE.CircleGeometry(0.004, 128, 0, 6.3);
@@ -210,8 +214,8 @@ function init() {
     pointer.position.copy( camera.position );
     pointer.rotation.copy( camera.rotation );
     pointer.translateZ( - 1 );
-
-
+    pointer.updateMatrix();
+    camera.add(pointer);
 
     // carré rouge barre d'action
     var redSquareGeo = new THREE.BoxGeometry(0.1, 0.1, 0.000001);
@@ -238,6 +242,8 @@ function init() {
     suppline.rotation.copy( camera.rotation );
     suppline.translateZ(- 1);
     suppline.translateY(- 0.48);
+    suppline.updateMatrix();
+    camera.add( suppline );
 
     // lignes verticales de la barre d'action
     for (var x= -0.5; x < 0.6; x = x + 0.1)
@@ -301,7 +307,7 @@ function init() {
     quarry.updateMatrix();
     camera.add(quarry);
 
-    // image netehr action bar
+    // image nether action bar
     var loaderQuarry = new THREE.TextureLoader();
     var netherMaterial = new THREE.MeshBasicMaterial({
         map: loaderQuarry.load('../images/nether.png')
@@ -315,18 +321,6 @@ function init() {
     nether.translateX(- 0.15);
     nether.updateMatrix();
     camera.add(nether);
-
-
-    // display des éléments collé à la caméra
-    pointer.updateMatrix();
-    hand.updateMatrix();
-    suppline.updateMatrix();
-    camera.add(hand);
-    camera.add(pointer);
-    camera.add( suppline );
-
-
-
 
 
     var directionalLight = new THREE.DirectionalLight(0xffff55, 1);
@@ -474,7 +468,6 @@ function animate() {
 
     const delta = clock.getDelta();
     var speed = 10;
-
     if (starFieldArray)
     {
         var i = 0;
@@ -512,6 +505,7 @@ function animate() {
         redSquarre.translateZ( - 0.999999 );
         redSquarre.translateY( - 0.53 );
         redSquarre.translateX( - 0.45 );
+        inHandMaterial = grassMaterials;
         actionBarNumber = 1;
     }
     if (keys[50]){
@@ -520,6 +514,7 @@ function animate() {
         redSquarre.translateZ( - 0.999999 );
         redSquarre.translateY( - 0.53 );
         redSquarre.translateX( - 0.35 );
+        inHandMaterial = dirtMaterials;
         actionBarNumber = 2;
     }
     if (keys[51]){
@@ -528,6 +523,7 @@ function animate() {
         redSquarre.translateZ( - 0.999999 );
         redSquarre.translateY( - 0.53 );
         redSquarre.translateX( - 0.25 );
+        inHandMaterial = quarryMaterials;
         actionBarNumber = 3;
     }
     if (keys[52]){
@@ -536,6 +532,7 @@ function animate() {
         redSquarre.translateZ( - 0.999999 );
         redSquarre.translateY( - 0.53 );
         redSquarre.translateX( - 0.15 );
+        inHandMaterial = netherMaterials;
         actionBarNumber = 4;
     }
     if (keys[53]){
@@ -578,7 +575,28 @@ function animate() {
         redSquarre.translateX(  0.35 );
         actionBarNumber = 9;
     }
+    if (keys[48]){
+        redSquarre.position.copy( camera.position );
+        redSquarre.rotation.copy( camera.rotation );
+        redSquarre.translateZ( - 0.999999 );
+        redSquarre.translateY( - 0.53 );
+        redSquarre.translateX(  0.45 );
+        actionBarNumber = 10;
+    }
+    if (inHand)
+        camera.remove(inHand);
 
+    if (actionBarNumber < 5) {
+        var inHandGeo = new THREE.BoxGeometry(1.8, 1.8, 1.8);
+        inHand = new THREE.Mesh(inHandGeo, inHandMaterial);
+        inHand.position.copy(camera.position);
+        inHand.rotation.copy(camera.rotation);
+        inHand.translateZ(-5);
+        inHand.translateY(-2);
+        inHand.translateX(1.5);
+        inHand.updateMatrix();
+        camera.add(inHand);
+    }
     water.material.uniforms.time.value += 1.0 / 40.0;
 
     renderer.render(scene, camera);
@@ -604,7 +622,7 @@ function onClick ( e ) {
             blocs.remove(intersects[0].object);
 
             starsGeometry = new THREE.Geometry();
-            for (var i = 0; i < 10; i ++ ) {
+            for (var i = 0; i < 20; i ++ ) {
 
                 var star = new THREE.Vector3();
 
@@ -628,8 +646,6 @@ function onClick ( e ) {
         if (e.which == 3) {
             var pos = intersects[0].object.position;
 
-
-
             var geometry = new THREE.CubeGeometry(2, 2, 2);
             if (actionBarNumber === 1)
                 material = new THREE.MeshFaceMaterial(grassMaterials);
@@ -641,6 +657,8 @@ function onClick ( e ) {
                 material = new THREE.MeshFaceMaterial(netherMaterials);
             var mesh = new THREE.Mesh(geometry, material);
 
+            if (actionBarNumber > 4)
+                return;
 
             switch (intersects[0].faceIndex) {
                 case 0:

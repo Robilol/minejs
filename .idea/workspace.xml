@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="16a386d0-ea87-40f8-be78-b33eb3b16757" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/build/images/quarry.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/build/images/quarry.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/js/base.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/base.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/node_modules/" />
@@ -19,8 +19,17 @@
       <file leaf-file-name="base.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/js/base.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="298">
-              <caret line="618" column="88" selection-start-line="618" selection-start-column="88" selection-end-line="618" selection-end-column="88" />
+            <state relative-caret-position="654">
+              <caret line="322" column="23" selection-start-line="322" selection-start-column="23" selection-end-line="322" selection-end-column="23" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="index.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/js/index.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="90">
+              <caret line="6" selection-start-line="6" selection-end-line="6" />
             </state>
           </provider>
         </entry>
@@ -28,8 +37,8 @@
       <file leaf-file-name="solbrillant.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/js/solbrillant.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="525">
-              <caret line="37" column="3" selection-start-line="37" selection-start-column="3" selection-end-line="56" selection-end-column="6" />
+            <state relative-caret-position="298">
+              <caret line="115" column="29" selection-start-line="115" selection-start-column="21" selection-end-line="115" selection-end-column="29" />
             </state>
           </provider>
         </entry>
@@ -38,9 +47,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>²</find>
-      <find>mes</find>
-      <find>scop</find>
       <find>reques</find>
       <find>requestAnimationFrame</find>
       <find>anima</find>
@@ -59,13 +65,18 @@
       <find>imageLoader</find>
       <find>materials</find>
       <find>red</find>
-      <find>hand</find>
       <find>skybo</find>
       <find>point</find>
       <find>star</find>
       <find>loadTe</find>
       <find>load</find>
       <find>0.2</find>
+      <find>square</find>
+      <find>vertices</find>
+      <find>supp</find>
+      <find>hand</find>
+      <find>inhan</find>
+      <find>matrix</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -226,12 +237,12 @@
       <workItem from="1529158560140" duration="9994000" />
       <workItem from="1529915689243" duration="1976000" />
       <workItem from="1529919529637" duration="18782000" />
-      <workItem from="1530167088377" duration="6061000" />
+      <workItem from="1530167088377" duration="19881000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="72291000" />
+    <option name="totallyTimeSpent" value="86111000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="64" y="-11" width="1857" height="1092" extended-state="6" />
@@ -483,15 +494,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/js/solbrillant.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="37" column="3" selection-start-line="37" selection-start-column="3" selection-end-line="56" selection-end-column="6" />
+        <state relative-caret-position="298">
+          <caret line="115" column="29" selection-start-line="115" selection-start-column="21" selection-end-line="115" selection-end-column="29" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/js/base.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="298">
-          <caret line="618" column="88" selection-start-line="618" selection-start-column="88" selection-end-line="618" selection-end-column="88" />
+        <state relative-caret-position="654">
+          <caret line="322" column="23" selection-start-line="322" selection-start-column="23" selection-end-line="322" selection-end-column="23" />
         </state>
       </provider>
     </entry>
